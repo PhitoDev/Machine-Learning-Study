@@ -1,4 +1,7 @@
 tensorflow
+torch
+torchvision
 numpy
 pandas
 gymnasium[toy-text]
+d2l
