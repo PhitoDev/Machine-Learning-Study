@@ -12,35 +12,18 @@ class ModelFreeControl:
         self.num_actions = num_actions
         self.alpha = alpha
         self.gamma = gamma
+        self.Q = np.zeros((self.num_states, self.num_actions))
 
-    def monte_carlo(self, episodes):
-        Q = np.zeros((self.num_states, self.num_actions))
+    def update_monte_carlo(self, episode):
+        G = 0
+        for state, action, reward in reversed(episode):
+            G = reward + self.gamma * G
+            self.Q[state, action] += self.alpha * (G - self.Q[state, action])
 
-        for episode in episodes:
-            G = 0
-            for state, action, reward in reversed(episode):
-                G = reward + self.gamma * G
-                Q[state, action] += self.alpha * (G - Q[state, action])
-
-        return Q
-
-    def sarsa(self, episodes):
-        Q = np.zeros((self.num_states, self.num_actions))
-
-        for episode in episodes:
-            for state, action, reward, next_state, next_action in episode:
-                target = reward + self.gamma * Q[next_state, next_action]
-                Q[state, action] += self.alpha * (target - Q[state, action])
+    def update_sarsa(self, state, action, reward, next_state, next_action):
+        target = reward + self.gamma * self.Q[next_state, next_action]
+        self.Q[state, action] += self.alpha * (target - self.Q[state, action])
                 
-        return Q
-    
-    def q_learning(self, episodes):
-        Q = np.zeros((self.num_states, self.num_actions))
-        
-        for episode in episodes:
-            for state, action, reward, next_state in episode:
-                next_action = np.argmax(Q[next_state])
-                target = reward + self.gamma * next_action
-                Q[state, action] += self.alpha * (target - Q[state, action])
-        
-        return Q
+    def update_q_learning(self, state, action, reward, next_state):
+        target = reward + self.gamma * np.max(self.Q[next_state])
+        self.Q[state, action] += self.alpha * (target - self.Q[state, action])
