@@ -16,26 +16,24 @@ if parent_dir not in sys.path:
 import model_free_control.primary as mfc
 import toy_text as tt
 
-env = input("Choose an environment (FrozenLake[1], Blackjack[2], CliffWalking[3], Taxi[4]): ")
-match env:
+env_input = input("Choose an environment (FrozenLake[1], CliffWalking[2], Taxi[3]): ")
+match env_input:
     case "1":
-        env = tt.create_environment("FrozenLake-v1", render_mode='human')       
+        env = tt.create_environment("FrozenLake-v1", render_mode='ansi')       
     case "2":
-        env = tt.create_environment("Blackjack-v1", render_mode='human')
+        env = tt.create_environment("CliffWalking-v1", render_mode='ansi')
     case "3":
-        env = tt.create_environment("CliffWalking-v0", render_mode='human')
-    case "4":
-        env = tt.create_environment("Taxi-v3", render_mode='human')
+        env = tt.create_environment("Taxi-v3", render_mode='ansi')
     case _:
         print("Invalid choice. Defaulting to FrozenLake.")
-        env = tt.create_environment("FrozenLake-v1", render_mode='human')
-# env = gym.make("FrozenLake-v1", map_name="8x8", render_mode='human', is_slippery=True)
+        env = tt.create_environment("FrozenLake-v1", render_mode='ansi')
+
 epsilon = 1.0
 epsilon_min = 0.01
-epsilon_decay = 0.9999
+epsilon_decay = 0.99
 num_states = env.observation_space.n
 num_actions = env.action_space.n
-gamma = 0.99
+gamma = 0.95
 alpha = 0.1
 control = mfc.ModelFreeControl(num_states, num_actions, alpha, gamma)
 
@@ -109,6 +107,17 @@ if wins == 0:
 
 
 # --- WATCHING THE AGENT ---
+match env_input:
+    case "1":
+        env = tt.create_environment("FrozenLake-v1", render_mode='human')       
+    case "2":
+        env = tt.create_environment("CliffWalking-v1", render_mode='human')
+    case "3":
+        env = tt.create_environment("Taxi-v3", render_mode='human')
+    case _:
+        print("Invalid choice. Defaulting to FrozenLake.")
+        env = tt.create_environment("FrozenLake-v1", render_mode='human')
+        
 state, info = env.reset()
 terminated = False
 truncated = False

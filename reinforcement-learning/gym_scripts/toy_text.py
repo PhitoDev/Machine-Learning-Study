@@ -2,8 +2,6 @@ import gymnasium as gym
 
 def create_environment(name="FrozenLake-v1", render_mode='human',):
     match name:
-        case "Blackjack-v1":
-            env = gym.make("Blackjack-v1", render_mode=render_mode, sab=True)
         case "CliffWalking-v1":
             env = gym.make("CliffWalking-v1", render_mode=render_mode)
         case "Taxi-v3":

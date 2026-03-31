@@ -2,7 +2,6 @@ import sys
 import os
 import time
 import numpy as np
-import gymnasium as gym
 
 # --- FOOLPROOF PATH FIX ---
 # 1. Get the absolute path of the folder this script is in ('gym')
@@ -19,15 +18,13 @@ if parent_dir not in sys.path:
 from mdp.tabular import TabularMDP 
 import toy_text as tt
 
-env = input("Choose an environment (FrozenLake[1], Blackjack[2], CliffWalking[3], Taxi[4]): ")
+env = input("Choose an environment (FrozenLake[1], CliffWalking[2], Taxi[3]): ")
 match env:
     case "1":
-        env = tt.create_environment("FrozenLake-v1", render_mode='human')       
+        env = tt.create_environment("FrozenLake-v1", render_mode='human') 
     case "2":
-        env = tt.create_environment("Blackjack-v1", render_mode='human')
-    case "3":
         env = tt.create_environment("CliffWalking-v0", render_mode='human')
-    case "4":
+    case "3":
         env = tt.create_environment("Taxi-v3", render_mode='human')
     case _:
         print("Invalid choice. Defaulting to FrozenLake.")
