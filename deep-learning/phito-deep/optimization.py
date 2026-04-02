@@ -14,8 +14,7 @@ def mini_batch_sgd(model, X, y, loss_class, alpha=0.01, epochs=1000, batch_size=
             y_pred = model.forward(X_batch)
             loss = loss_class.loss_func(y_pred, y_batch)
 
-            # Compute gradient of loss w.r.t. predictions (for MSE)
-            # dL/dy = 2 * (y_pred - y_true) / m
+            # Compute gradient of loss w.r.t. predictions (dy)
             dy = loss_class.loss_gradient(y_pred, y_batch)
 
             # Backward pass with gradient of loss

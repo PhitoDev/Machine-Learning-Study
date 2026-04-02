@@ -4,7 +4,9 @@ import optimization
 
 
 class Sequential:
-    def __init__(self, *blocks, alpha=0.01, optimizer="sgd") -> None:
+    def __init__(
+        self, *blocks, alpha=0.01, optimizer="sgd", batch_size=1, epochs=1000
+    ) -> None:
         """
         Initialize with variable number of blocks.
 
@@ -19,6 +21,8 @@ class Sequential:
         self.blocks = list(blocks)
         self.alpha = alpha
         self.optimizer = optimizer
+        self.batch_size = batch_size
+        self.epochs = epochs
 
     def add(self, block) -> None:
         """Add a block to the network."""
@@ -26,6 +30,9 @@ class Sequential:
 
     def setoptimizer(self, name):
         self.optimizer = name
+
+    def setbatchsize(self, num):
+        self.batch_size = num
 
     def train(self, X, y):
         match self.optimizer:
@@ -36,6 +43,8 @@ class Sequential:
                     y=y,
                     loss_class=l.MSE(),
                     alpha=self.alpha,
+                    batch_size=self.batch_size,
+                    epochs=self.epochs,
                 )
             case _:
                 raise ValueError(f"{self.optimizer} is not a valid optimizer.")
@@ -84,6 +93,10 @@ class Sequential:
         """Print model architecture."""
         print("Model Summary:")
         print("-" * 60)
+        print(
+            f"Optimizer: {self.optimizer} | Learning Rate: {self.alpha} | Batch Size: {self.batch_size}"
+        )
+        print("-" * 60)
         for i, block in enumerate(self.blocks):
             if isinstance(block, b.Dense):
                 print(
@@ -97,10 +110,12 @@ class Sequential:
 class SequentialBuilder:
     """Fluent API for building Sequential models."""
 
-    def __init__(self, alpha=0.01):
+    def __init__(self):
         self.blocks = []
-        self.alpha = alpha
+        self.alpha_value = 1
         self.optimizer_name = "sgd"
+        self.batch_size = 1
+        self.epochs_value = 1000
 
     def dense(self, input_size, output_size):
         """Add a Dense layer."""
@@ -137,6 +152,27 @@ class SequentialBuilder:
         self.optimizer_name = name
         return self
 
+    def batch(self, num):
+        """Set the batch size."""
+        self.batch_size = num
+        return self
+
+    def alpha(self, num):
+        """Set the learning rate."""
+        self.alpha_value = num
+        return self
+
+    def epochs(self, num):
+        """Set the number of epochs."""
+        self.epochs_value = num
+        return self
+
     def build(self):
         """Build and return the Sequential model."""
-        return Sequential(*self.blocks, alpha=self.alpha, optimizer=self.optimizer_name)
+        return Sequential(
+            *self.blocks,
+            alpha=self.alpha_value,
+            optimizer=self.optimizer_name,
+            batch_size=self.batch_size,
+            epochs=self.epochs_value,
+        )

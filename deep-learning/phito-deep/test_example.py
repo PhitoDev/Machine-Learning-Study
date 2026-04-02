@@ -20,7 +20,7 @@ print("=" * 70)
 # Build model using SequentialBuilder (fluent API)
 print("\nBuilding model: 10 -> 16 -> 8 -> 1")
 model = (
-    SequentialBuilder(alpha=0.1)
+    SequentialBuilder()
     .dense(10, 16)
     .relu()
     .dense(16, 8)
@@ -28,6 +28,9 @@ model = (
     .dense(8, 1)
     .sigmoid()
     .optimizer("sgd")
+    .batch(32)
+    .alpha(0.2)
+    .epochs(300)
     .build()
 )
 
