@@ -5,7 +5,13 @@ import optimization
 
 class Sequential:
     def __init__(
-        self, *blocks, alpha=0.01, optimizer="sgd", batch_size=1, epochs=1000
+        self,
+        *blocks,
+        alpha=0.01,
+        optimizer="sgd",
+        batch_size=1,
+        epochs=1000,
+        loss_class=l.MeanSquaredError(),
     ) -> None:
         """
         Initialize with variable number of blocks.
@@ -23,6 +29,7 @@ class Sequential:
         self.optimizer = optimizer
         self.batch_size = batch_size
         self.epochs = epochs
+        self.loss_class = loss_class
 
     def add(self, block) -> None:
         """Add a block to the network."""
@@ -34,6 +41,9 @@ class Sequential:
     def setbatchsize(self, num):
         self.batch_size = num
 
+    def setloss(self, loss_class):
+        self.loss_class = loss_class
+
     def train(self, X, y):
         match self.optimizer:
             case "sgd":
@@ -41,7 +51,7 @@ class Sequential:
                     model=self,
                     X=X,
                     y=y,
-                    loss_class=l.MSE(),
+                    loss_class=self.loss_class,
                     alpha=self.alpha,
                     batch_size=self.batch_size,
                     epochs=self.epochs,
@@ -94,7 +104,7 @@ class Sequential:
         print("Model Summary:")
         print("-" * 60)
         print(
-            f"Optimizer: {self.optimizer} | Learning Rate: {self.alpha} | Batch Size: {self.batch_size}"
+            f"Optimizer: {self.optimizer} | Learning Rate: {self.alpha} | Batch Size: {self.batch_size} \nEpochs: {self.epochs} | Loss: {self.loss_class.name}"
         )
         print("-" * 60)
         for i, block in enumerate(self.blocks):
@@ -116,6 +126,7 @@ class SequentialBuilder:
         self.optimizer_name = "sgd"
         self.batch_size = 1
         self.epochs_value = 1000
+        self.loss_class = l.MeanSquaredError()
 
     def dense(self, input_size, output_size):
         """Add a Dense layer."""
@@ -167,6 +178,11 @@ class SequentialBuilder:
         self.epochs_value = num
         return self
 
+    def loss(self, loss_class):
+        """Set the loss function."""
+        self.loss_class = loss_class
+        return self
+
     def build(self):
         """Build and return the Sequential model."""
         return Sequential(
@@ -175,4 +191,5 @@ class SequentialBuilder:
             optimizer=self.optimizer_name,
             batch_size=self.batch_size,
             epochs=self.epochs_value,
+            loss_class=self.loss_class,
         )

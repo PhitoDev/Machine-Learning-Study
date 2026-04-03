@@ -31,7 +31,7 @@ class Dense(Block):
         self.input_size = input_size
         self.output_size = output_size
         # Initialize weights and biases
-        self.W = np.random.randn(input_size, output_size) * 0.01
+        self.W = np.random.randn(input_size, output_size) * np.sqrt(2.0 / input_size)
         self.b = np.zeros(output_size)
 
     def forward(self, X):
@@ -62,12 +62,12 @@ class Dense(Block):
         # Gradient w.r.t. bias: (1/m) * sum(dL_dZ)
         dL_db = np.sum(dL_dZ, axis=0, keepdims=True) / m
 
-        # Gradient w.r.t. input: dL_dZ @ W^T
-        dL_dX = np.dot(dL_dZ, self.W.T)
-
         # Update weights and biases using SGD
         self.W -= alpha * dL_dW
         self.b -= alpha * dL_db.reshape(self.b.shape)
+
+        # Gradient w.r.t. input: dL_dZ @ W^T
+        dL_dX = np.dot(dL_dZ, self.W.T)
 
         return dL_dX
 

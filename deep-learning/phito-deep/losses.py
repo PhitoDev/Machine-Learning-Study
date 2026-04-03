@@ -14,9 +14,9 @@ class LossBase:
         )
 
 
-class MSE(LossBase):
+class MeanSquaredError(LossBase):
     def __init__(self) -> None:
-        super().__init__("MSE")
+        super().__init__("MeanSquaredError")
 
     def loss_func(self, y_pred, y_true):
         return np.mean((y_pred - y_true) ** 2)
@@ -24,3 +24,31 @@ class MSE(LossBase):
     def loss_gradient(self, y_pred, y_true):
         m = len(y_true)
         return 2 * (y_pred - y_true) / m
+
+
+class CategoricalCrossEntropy(LossBase):
+    def __init__(self) -> None:
+        super().__init__("CategoricalCrossEntropy")
+
+    def loss_func(self, y_pred, y_true):
+        N = len(y_true)
+        correct = y_pred[np.arange(N), y_true]
+        return -np.mean(np.log(correct + 1e-8))
+
+    def loss_gradient(self, y_pred, y_true):
+        N = len(y_true)
+        correct = y_pred[np.arange(N), y_true]
+        return -y_true / (correct + 1e-8)
+
+
+class BinaryCrossEntropy(LossBase):
+    def __init__(self) -> None:
+        super().__init__("BinaryCrossEntropy")
+
+    def loss_func(self, y_pred, y_true):
+        return -np.mean(
+            y_true * np.log(y_pred + 1e-8) + (1 - y_true) * np.log(1 - y_pred + 1e-8)
+        )
+
+    def loss_gradient(self, y_pred, y_true):
+        return (y_pred - y_true) / (y_pred * (1 - y_pred) + 1e-8)

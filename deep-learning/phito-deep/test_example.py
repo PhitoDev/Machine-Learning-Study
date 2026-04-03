@@ -3,6 +3,7 @@ Simple test to verify the neural network implementation works correctly.
 """
 
 import numpy as np
+from losses import BinaryCrossEntropy
 from model import SequentialBuilder
 
 # Set random seed for reproducibility
@@ -28,9 +29,10 @@ model = (
     .dense(8, 1)
     .sigmoid()
     .optimizer("sgd")
+    .loss(BinaryCrossEntropy())
     .batch(32)
-    .alpha(0.2)
-    .epochs(300)
+    .alpha(0.1)
+    .epochs(600)
     .build()
 )
 
@@ -42,7 +44,7 @@ model.summary()
 print("\n" + "-" * 70)
 print("Forward pass test (before training):")
 print("-" * 70)
-y_pred_before = model(X_train[:5])
+y_pred_before = model(X_train[:5]).round()
 print(f"Predictions shape: {y_pred_before.shape}")
 print(f"Sample predictions (first 5):\n{y_pred_before.flatten()}")
 print(f"Sample true labels (first 5):\n{y_train[:5].flatten()}")
@@ -57,7 +59,7 @@ losses = model.train(X_train, y_train)
 print("\n" + "-" * 70)
 print("Predictions after training:")
 print("-" * 70)
-y_pred_after = model(X_train[:10])
+y_pred_after = model(X_train[:10]).round()
 print(f"Predictions shape: {y_pred_after.shape}")
 print(f"Sample predictions (first 10):\n{y_pred_after.flatten()}")
 print(f"Sample true labels (first 10):\n{y_train[:10].flatten()}")
