@@ -1,39 +1,40 @@
-import blocks as b
-import losses as l
+import loss as ls
 import optimization
+from layers import activation as a
+from layers import base as b
 
 
 class Sequential:
     def __init__(
         self,
-        *blocks,
+        *layers,
         alpha=0.01,
         optimizer="sgd",
         batch_size=1,
         epochs=1000,
-        loss_class=l.MeanSquaredError(),
+        loss_class=ls.MeanSquaredError(),
     ) -> None:
         """
-        Initialize with variable number of blocks.
+        Initialize with variable number of layers.
 
         Usage:
             model = Sequential(
                 b.Dense(256, 128),
-                b.ReLu(),
+                a.ReLu(),
                 b.Dense(128, 1),
-                b.Sigmoid()
+                a.Sigmoid()
             )
         """
-        self.blocks = list(blocks)
+        self.layers = list(layers)
         self.alpha = alpha
         self.optimizer = optimizer
         self.batch_size = batch_size
         self.epochs = epochs
         self.loss_class = loss_class
 
-    def add(self, block) -> None:
-        """Add a block to the network."""
-        self.blocks.append(block)
+    def add(self, layer) -> None:
+        """Add a layer to the network."""
+        self.layers.append(layer)
 
     def setoptimizer(self, name):
         self.optimizer = name
@@ -72,7 +73,7 @@ class Sequential:
             output after passing through all blocks
         """
         output = X
-        for block in self.blocks:
+        for block in self.layers:
             output = block.forward(output)
         return output
 
@@ -91,9 +92,9 @@ class Sequential:
         current_gradient = gradient
 
         # Iterate through blocks in reverse order
-        for block in reversed(self.blocks):
+        for layer in reversed(self.layers):
             # Pass gradient through block and get gradient for previous layer
-            current_gradient = block.backward(current_gradient, self.alpha)
+            current_gradient = layer.backward(current_gradient, self.alpha)
 
     def __call__(self, X):
         """Allow model(X) syntax."""
@@ -107,13 +108,13 @@ class Sequential:
             f"Optimizer: {self.optimizer} | Learning Rate: {self.alpha} | Batch Size: {self.batch_size} \nEpochs: {self.epochs} | Loss: {self.loss_class.name}"
         )
         print("-" * 60)
-        for i, block in enumerate(self.blocks):
-            if isinstance(block, b.Dense):
+        for i, layer in enumerate(self.layers):
+            if isinstance(layer, b.Dense):
                 print(
-                    f"Layer {i}: {block.name.upper():<10} | Input: {block.input_size:<5} Output: {block.output_size:<5}"
+                    f"Layer {i}: {layer.name.upper():<10} | Input: {layer.input_size:<5} Output: {layer.output_size:<5}"
                 )
             else:
-                print(f"Layer {i}: {block.name.upper():<10}")
+                print(f"Layer {i}: {layer.name.upper():<10}")
         print("-" * 60)
 
 
@@ -121,41 +122,41 @@ class SequentialBuilder:
     """Fluent API for building Sequential models."""
 
     def __init__(self):
-        self.blocks = []
+        self.layers = []
         self.alpha_value = 1
         self.optimizer_name = "sgd"
         self.batch_size = 1
         self.epochs_value = 1000
-        self.loss_class = l.MeanSquaredError()
+        self.loss_class = ls.MeanSquaredError()
 
     def dense(self, input_size, output_size):
         """Add a Dense layer."""
-        self.blocks.append(b.Dense(input_size, output_size))
+        self.layers.append(b.Dense(input_size, output_size))
         return self
 
     def relu(self):
         """Add a ReLU activation."""
-        self.blocks.append(b.ReLu())
+        self.layers.append(a.ReLu())
         return self
 
     def sigmoid(self):
         """Add a Sigmoid activation."""
-        self.blocks.append(b.Sigmoid())
+        self.layers.append(a.Sigmoid())
         return self
 
     def tanh(self):
         """Add a Tanh activation."""
-        self.blocks.append(b.Tanh())
+        self.layers.append(a.Tanh())
         return self
 
     def softmax(self):
         """Add a Softmax activation."""
-        self.blocks.append(b.Softmax())
+        self.layers.append(a.Softmax())
         return self
 
     def elu(self, alpha_activation=1.0):
         """Add an ELU activation."""
-        self.blocks.append(b.ELU(alpha_activation))
+        self.layers.append(a.ELU(alpha_activation))
         return self
 
     def optimizer(self, name):
@@ -186,7 +187,7 @@ class SequentialBuilder:
     def build(self):
         """Build and return the Sequential model."""
         return Sequential(
-            *self.blocks,
+            *self.layers,
             alpha=self.alpha_value,
             optimizer=self.optimizer_name,
             batch_size=self.batch_size,

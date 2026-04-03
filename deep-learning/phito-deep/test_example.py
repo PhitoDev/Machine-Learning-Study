@@ -3,7 +3,7 @@ Simple test to verify the neural network implementation works correctly.
 """
 
 import numpy as np
-from losses import BinaryCrossEntropy
+from loss import BinaryCrossEntropy
 from model import SequentialBuilder
 
 # Set random seed for reproducibility
