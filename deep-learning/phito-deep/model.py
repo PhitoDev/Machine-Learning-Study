@@ -64,36 +64,36 @@ class Sequential:
 
     def forward(self, X):
         """
-        Forward pass through all blocks.
+        Forward pass through all layers.
 
         Args:
             X: input array
 
         Returns:
-            output after passing through all blocks
+            output after passing through all layers
         """
         output = X
-        for block in self.layers:
-            output = block.forward(output)
+        for layer in self.layers:
+            output = layer.forward(output)
         return output
 
     def backward(self, gradient):
         """
-        Backward pass through all blocks.
+        Backward pass through all layers.
 
         Args:
             gradient: dL/dY from loss function (shape: batch_size x output_size)
 
         Propagates gradient backwards through all layers in reverse order.
-        Each block computes its parameter gradients, updates parameters,
+        Each layer computes its parameter gradients, updates parameters,
         and returns the gradient for the previous layer.
         """
         # Start with gradient from loss and propagate backwards
         current_gradient = gradient
 
-        # Iterate through blocks in reverse order
+        # Iterate through layers in reverse order
         for layer in reversed(self.layers):
-            # Pass gradient through block and get gradient for previous layer
+            # Pass gradient through layer and get gradient for previous layer
             current_gradient = layer.backward(current_gradient, self.alpha)
 
     def __call__(self, X):
