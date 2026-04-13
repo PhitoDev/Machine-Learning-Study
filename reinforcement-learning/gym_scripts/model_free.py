@@ -47,6 +47,7 @@ match algorithm:
         algorithm = ControlAlgorithm.MonteCarlo
         print("Invalid choice. Defaulting to Monte Carlo.")
 
+rng = np.random.default_rng(42)
 wins = 0
 num_episodes = int(
     input("Enter the number of episodes for training (e.g., 10000): ") or "10000"
@@ -59,13 +60,13 @@ for episode in range(num_episodes):
     episode_data = []
 
     if algorithm == ControlAlgorithm.SARSA:
-        if np.random.uniform(0, 1) < epsilon:
+        if rng.uniform(0, 1) < epsilon:
             action = env.action_space.sample()
         else:
             action = np.argmax(control.Q[state])
 
     while not terminated and not truncated:
-        if np.random.uniform(0, 1) < epsilon:
+        if rng.uniform(0, 1) < epsilon:
             action = env.action_space.sample()
         else:
             action = np.argmax(control.Q[state])
@@ -74,7 +75,7 @@ for episode in range(num_episodes):
 
         match algorithm:
             case ControlAlgorithm.SARSA:
-                if np.random.uniform(0, 1) < epsilon:
+                if rng.uniform(0, 1) < epsilon:
                     next_action = env.action_space.sample()
                 else:
                     next_action = np.argmax(control.Q[new_state])
@@ -82,7 +83,6 @@ for episode in range(num_episodes):
                 action = next_action
             case ControlAlgorithm.QLearning:
                 control.update_q_learning(state, action, reward, new_state)
-                episode_data.append((state, action, reward, new_state))
             case ControlAlgorithm.MonteCarlo:
                 episode_data.append((state, action, reward))
         state = new_state
