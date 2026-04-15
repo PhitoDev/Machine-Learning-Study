@@ -5,6 +5,8 @@ from phitodeep.model import SequentialBuilder
 
 class QNetwork:
     def __init__(self, input_size, output_size) -> None:
+        self.input_size = input_size
+        self.output_size = output_size
         self.model = (
             SequentialBuilder()
             .dense(input_size, 128)
@@ -19,6 +21,11 @@ class QNetwork:
 
     def predict(self, X):
         return self.model.predict(X)
+
+    def copy(self):
+        new_network = QNetwork(self.input_size, self.output_size)
+        new_network.model = self.model.copy()
+        return new_network
 
 
 class ReplayBuffer:
@@ -55,7 +62,7 @@ class DQNAgent:
         self.input_size = input_size
         self.output_size = output_size
         self.q_network = QNetwork(input_size, output_size)
-        self.target_network = QNetwork(input_size, output_size)
+        self.target_network = self.q_network.copy()
         self.replay_buffer = ReplayBuffer(capacity)
         self.gamma = gamma
         self.epsilon = epsilon
@@ -92,3 +99,6 @@ class DQNAgent:
             train_states, train_targets, test_states, test_targets
         )
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+
+    def update_target_network(self):
+        self.target_network = self.q_network.copy()
