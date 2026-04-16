@@ -1,2 +1,6 @@
 # Machine-Learning-Study
-Self-directed machine learning engineering study using Guided Learning with Gemini 
+This repository documents my learning journey as I become a machine learning engineer. It contains notebooks and code examples that I use to reinforce the material from YouTube courses and books that I used to learn.
+
+## Deep Learning 
+
+## Reinforcement Learning
