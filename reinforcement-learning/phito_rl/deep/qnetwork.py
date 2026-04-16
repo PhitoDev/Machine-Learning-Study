@@ -15,6 +15,7 @@ class QNetwork:
             .loss(MeanSquaredError())
             .optimizer("adam")
             .alpha(0.001)
+            .epochs(150)
             .batch(64)
             .build()
         )
@@ -42,7 +43,8 @@ class ReplayBuffer:
         self.pointer = (self.pointer + 1) % self.buffer_size
 
     def sample(self, batch_size):
-        return self.rng.choice(self.buffer, batch_size, replace=False)
+        indices = self.rng.choice(len(self.buffer), batch_size, replace=False)
+        return [self.buffer[i] for i in indices]
 
     def __len__(self):
         return len(self.buffer)
@@ -69,8 +71,8 @@ class DQNAgent:
         self.epsilon_min = 0.01
         self.epsilon_decay = epsilon_decay
 
-    def select_action(self, state):
-        if self.rng.uniform() < self.epsilon:
+    def select_action(self, state, training=True):
+        if training and self.rng.uniform() < self.epsilon:
             return self.rng.integers(0, self.output_size)
         q_values = self.q_network.predict(state)
         return np.argmax(q_values)
@@ -92,7 +94,7 @@ class DQNAgent:
                 targets[i, actions[i]] = rewards[i] + self.gamma * np.max(
                     next_q_values[i]
                 )
-        split = 0.8 * len(targets)
+        split = int(0.8 * len(targets))
         train_states, train_targets = states[:split], targets[:split]
         test_states, test_targets = states[split:], targets[split:]
         self.q_network.model.train(
